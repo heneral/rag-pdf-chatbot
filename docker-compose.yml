@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  rag-chatbot:
+    build: .
+    container_name: rag-pdf-chatbot
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DEBUG=${DEBUG:-False}
+      - VECTOR_DB_TYPE=${VECTOR_DB_TYPE:-faiss}
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-openai}
+      - LLM_MODEL=${LLM_MODEL:-gpt-3.5-turbo}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./vector_store:/app/vector_store
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
